@@ -1,8 +1,8 @@
-package com.example.divisa.data
+package com.example.exchangeRate.data
 
 import ExchangeRate
 import ExchangeRateDao
-import com.example.divisa.network.ExchangeRateApiService
+import com.example.exchangeRate.network.ExchangeRateApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

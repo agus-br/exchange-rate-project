@@ -1,4 +1,4 @@
-package com.example.divisa.network
+package com.example.exchangeRate.network
 
 data class ExchangeRateResponse(
     val result: String,

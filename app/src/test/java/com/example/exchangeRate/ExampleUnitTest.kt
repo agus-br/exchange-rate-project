@@ -1,4 +1,4 @@
-package com.example.divisa
+package com.example.exchangeRate
 
 import org.junit.Test
 

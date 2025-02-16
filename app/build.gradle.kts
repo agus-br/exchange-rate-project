@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.divisa"
+    namespace = "com.example.exchangeRate"
     compileSdk = 35
 
     defaultConfig {

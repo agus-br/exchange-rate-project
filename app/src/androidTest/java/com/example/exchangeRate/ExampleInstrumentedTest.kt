@@ -1,4 +1,4 @@
-package com.example.divisa
+package com.example.exchangeRate
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

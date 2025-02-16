@@ -1,4 +1,4 @@
-package com.example.divisa.network
+package com.example.exchangeRate.network
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

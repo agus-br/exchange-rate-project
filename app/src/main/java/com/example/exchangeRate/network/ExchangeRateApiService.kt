@@ -1,7 +1,6 @@
-package com.example.divisa.network
+package com.example.exchangeRate.network
 
 import retrofit2.http.GET
-import retrofit2.http.Query
 
 interface ExchangeRateApiService {
 
