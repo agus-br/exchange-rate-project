@@ -2,6 +2,7 @@ package com.example.exchangeRate.data
 
 import ExchangeRate
 import ExchangeRateDao
+import android.util.Log
 import com.example.exchangeRate.network.ExchangeRateApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -16,7 +17,14 @@ class ExchangeRateRepository(
 
     // Inserta un nuevo tipo de cambio
     suspend fun insert(exchangeRate: ExchangeRate) {
-        exchangeRateDao.insert(exchangeRate)
+        try {
+            exchangeRateDao.insert(exchangeRate)
+            // Log para verificar que los datos se insertaron correctamente
+            Log.d("ExchangeRateRepository", "Datos insertados en la base de datos: $exchangeRate")
+        } catch (e: Exception) {
+            // Log en caso de error al insertar
+            Log.e("ExchangeRateRepository", "Error al insertar datos: ${e.message}")
+        }
     }
 
     // Obtén las tasas de conversión como un Flow
@@ -29,6 +37,9 @@ class ExchangeRateRepository(
         try {
             val response = apiService.getLatestExchangeRates()
             if (response.result == "success") {
+                // Imprimir los datos de la API en la consola usando Log.d
+                Log.d("ExchangeRateRepository", "Datos de la API recibidos: $response")
+
                 val exchangeRate = ExchangeRate(
                     id = 0,
                     baseCode = response.base_code,
@@ -39,7 +50,7 @@ class ExchangeRateRepository(
                 insert(exchangeRate)
             }
         } catch (e: Exception) {
-            println("Error al sincronizar los datos: ${e.message}")
+            Log.e("ExchangeRateRepository", "Error al sincronizar los datos: ${e.message}")
         }
     }
 }

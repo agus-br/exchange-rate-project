@@ -1,5 +1,6 @@
 package com.example.exchangeRate.ui.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -38,6 +39,8 @@ class ExchangeRateViewModel(
     private fun observeConversionRates() {
         viewModelScope.launch {
             repository.conversionRates.collect { rates ->
+                // Log para verificar los datos recuperados de la base de datos
+                Log.d("ExchangeRateViewModel", "Datos recuperados de la base de datos: $rates")
                 _conversionRates.value = rates ?: emptyMap()
             }
         }
@@ -50,12 +53,16 @@ class ExchangeRateViewModel(
             _errorMessage.value = ""
             try {
                 repository.syncExchangeRates()
+                // Log para verificar que la carga se completó correctamente
+                Log.d("ExchangeRateViewModel", "Carga de datos completada")
             } catch (e: Exception) {
                 _errorMessage.value = "Error al cargar los datos: ${e.message}"
-                println("Error en loadExchangeRates: ${e.message}") // Imprimir el error en la consola
+                // Log en caso de error al cargar datos
+                Log.e("ExchangeRateViewModel", "Error en loadExchangeRates: ${e.message}")
             } finally {
                 _isLoading.value = false
-                println("Carga de datos completada") // Imprimir cuando la carga termine
+                // Log para verificar que la carga terminó (éxito o error)
+                Log.d("ExchangeRateViewModel", "Carga de datos finalizada")
             }
         }
     }

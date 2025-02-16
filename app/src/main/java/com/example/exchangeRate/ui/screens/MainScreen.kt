@@ -1,5 +1,6 @@
 package com.example.exchangeRate.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,12 @@ fun MainScreen(
     val exchangeRates = viewModel.conversionRates.collectAsState().value
     val isLoading = viewModel.isLoading.collectAsState().value
     val errorMessage = viewModel.errorMessage.collectAsState().value
+
+    // Logs para verificar los datos en MainScreen
+    Log.d("MainScreen", "Datos en MainScreen: $exchangeRates")
+    Log.d("MainScreen", "Estado de carga: $isLoading")
+    Log.d("MainScreen", "Mensaje de error: $errorMessage")
+
 
     Column(
         modifier = Modifier
