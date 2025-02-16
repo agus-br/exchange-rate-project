@@ -1,8 +1,7 @@
 package com.example.exchangeRate.data
 
-import ExchangeRate
-import ExchangeRateDao
 import android.util.Log
+import com.example.exchangeRate.model.ExchangeRate
 import com.example.exchangeRate.network.ExchangeRateApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

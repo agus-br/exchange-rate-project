@@ -1,7 +1,5 @@
 package com.example.exchangeRate.data
 
-import AppDatabase
-import ExchangeRateDao
 import android.content.Context
 import com.example.exchangeRate.network.ExchangeRateApiService
 import com.example.exchangeRate.network.RetrofitClient

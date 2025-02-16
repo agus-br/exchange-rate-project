@@ -1,8 +1,12 @@
+package com.example.exchangeRate.data
+
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
 import androidx.room.TypeConverters
+import com.example.exchangeRate.model.ExchangeRate
+import com.example.exchangeRate.model.RatesConverter
 
 @Database(
     entities = [ExchangeRate::class], // Entidades que forman parte de la base de datos
@@ -24,7 +28,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "exchange_rate_database" // Nombre de la base de datos
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

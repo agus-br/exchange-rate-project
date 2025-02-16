@@ -1,7 +1,8 @@
+package com.example.exchangeRate.model
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import java.util.Date
 
 @Entity(tableName = "exchange_rates") // Nombre de la tabla en la base de datos
 data class ExchangeRate(

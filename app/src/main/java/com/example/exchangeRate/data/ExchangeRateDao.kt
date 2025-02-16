@@ -1,7 +1,10 @@
+package com.example.exchangeRate.data
+
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.exchangeRate.model.ExchangeRate
 import kotlinx.coroutines.flow.Flow
 
 @Dao
