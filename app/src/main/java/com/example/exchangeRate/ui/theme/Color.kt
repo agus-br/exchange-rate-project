@@ -1,4 +1,4 @@
-package com.example.divisa.ui.theme
+package com.example.exchangeRate.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

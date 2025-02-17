@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "divisa"
+rootProject.name = "exchangeRate"
 include(":app")
  
