@@ -7,4 +7,10 @@ class ExchangeRateApplication : Application() {
 
     // Contenedor de dependencias
     val container: AppContainer by lazy { AppContainer(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        // Programar la sincronización cada hora
+        container.scheduleSync()
+    }
 }
