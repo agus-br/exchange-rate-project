@@ -10,7 +10,7 @@ class ExchangeRateApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // Programar la sincronización cada hora
+        // Programar la sincronización
         container.scheduleSync()
     }
 }

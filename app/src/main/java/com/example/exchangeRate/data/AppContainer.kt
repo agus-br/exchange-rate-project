@@ -1,6 +1,7 @@
 package com.example.exchangeRate.data
 
 import android.content.Context
+import android.util.Log
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -56,14 +57,16 @@ class AppContainer(
             .build()
 
         val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-            1, TimeUnit.HOURS // Ejecutar cada hora
+            15, TimeUnit.MINUTES // Ejecutar cada 15 minutos
         ).setConstraints(constraints)
             .build()
 
         workManager.enqueueUniquePeriodicWork(
             "SyncWork", // Nombre único para el trabajo
-            ExistingPeriodicWorkPolicy.UPDATE, // Actualiza si ya existe
+            ExistingPeriodicWorkPolicy.KEEP, // La mantiene si existe
             syncRequest
         )
+
+        Log.d("WorkManager", "Sincronización programada cada 15 minutos")
     }
 }
