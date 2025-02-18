@@ -5,6 +5,7 @@ import com.example.exchangeRate.model.ExchangeRate
 import com.example.exchangeRate.network.ExchangeRateApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.Date
 
 class ExchangeRateRepository(
     private val exchangeRateDao: ExchangeRateDao,
@@ -14,8 +15,13 @@ class ExchangeRateRepository(
     // Obtén el último tipo de cambio como un Flow
     val latestExchangeRate: Flow<ExchangeRate?> = exchangeRateDao.getLatestExchangeRate()
 
+    // Obtén los tipos de cambio por rango de fechas
+    fun getExchangeRatesByDateRange(startDate: Long, endDate: Long): Flow<List<ExchangeRate>> {
+        return exchangeRateDao.getExchangeRatesByDateRange(startDate, endDate)
+    }
+
     // Inserta un nuevo tipo de cambio
-    suspend fun insert(exchangeRate: ExchangeRate) {
+    private suspend fun insert(exchangeRate: ExchangeRate) {
         try {
             exchangeRateDao.insert(exchangeRate)
             // Log para verificar que los datos se insertaron correctamente
@@ -25,6 +31,17 @@ class ExchangeRateRepository(
             Log.e("ExchangeRateRepository", "Error al insertar datos: ${e.message}")
         }
     }
+
+    // Elimina todos los registros de la tabla
+    suspend fun deleteAll() {
+        try {
+            exchangeRateDao.deleteAll()
+            Log.d("ExchangeRateRepository", "Todos los registros eliminados.")
+        } catch (e: Exception) {
+            Log.e("ExchangeRateRepository", "Error al eliminar todos los registros: ${e.message}")
+        }
+    }
+
 
     // Obtén las tasas de conversión como un Flow
     val conversionRates: Flow<Map<String, Double>?> = latestExchangeRate.map { exchangeRate ->
@@ -40,11 +57,11 @@ class ExchangeRateRepository(
                 Log.d("ExchangeRateRepository", "Datos de la API recibidos: $response")
 
                 val exchangeRate = ExchangeRate(
-                    id = 0,
                     baseCode = response.base_code,
                     rates = response.conversion_rates,
                     lastUpdateUnix = response.time_last_update_unix,
-                    nextUpdateUnix = response.time_next_update_unix
+                    nextUpdateUnix = response.time_next_update_unix,
+                    syncDate = System.currentTimeMillis()
                 )
                 insert(exchangeRate)
             }
