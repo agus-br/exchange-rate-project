@@ -14,9 +14,13 @@ interface ExchangeRateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(exchangeRate: ExchangeRate)
 
-    // Obtén el último registro de la tabla como un Flow
-    @Query("SELECT * FROM exchange_rates LIMIT 1")
+    // Obtiene el último tipo de cambio basado en la fecha de sincronización más reciente
+    @Query("SELECT * FROM exchange_rates ORDER BY syncDate DESC LIMIT 1")
     fun getLatestExchangeRate(): Flow<ExchangeRate?>
+
+    // Obtiene todos los registros dentro de un rango de fechas específico
+    @Query("SELECT * FROM exchange_rates WHERE syncDate BETWEEN :startDate AND :endDate ORDER BY syncDate DESC")
+    fun getExchangeRatesByDateRange(startDate: Long, endDate: Long): Flow<List<ExchangeRate>>
 
     // Elimina todos los registros de la tabla (útil para limpiar la tabla)
     @Query("DELETE FROM exchange_rates")

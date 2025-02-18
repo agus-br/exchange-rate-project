@@ -10,7 +10,7 @@ import com.example.exchangeRate.model.RatesConverter
 
 @Database(
     entities = [ExchangeRate::class], // Entidades que forman parte de la base de datos
-    version = 1, // Versión de la base de datos
+    version = 2, // Versión de la base de datos
     exportSchema = false // No necesitamos exportar el esquema
 )
 @TypeConverters(RatesConverter::class) // Registra el TypeConverter

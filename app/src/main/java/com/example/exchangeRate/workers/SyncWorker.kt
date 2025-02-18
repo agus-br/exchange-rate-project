@@ -1,6 +1,7 @@
 package com.example.exchangeRate.workers
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.exchangeRate.data.ExchangeRateRepository
@@ -20,6 +21,7 @@ class SyncWorker(
             Result.success()
         } catch (e: Exception) {
             // Si hay un error, reintenta más tarde
+            Log.d("SyncWorker", "Fallo en la sincronización de datos con la API")
             Result.retry()
         }
     }
