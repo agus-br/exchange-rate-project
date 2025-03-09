@@ -69,4 +69,6 @@ class ExchangeRateRepository(
             Log.e("ExchangeRateRepository", "Error al sincronizar los datos: ${e.message}")
         }
     }
+
+
 }

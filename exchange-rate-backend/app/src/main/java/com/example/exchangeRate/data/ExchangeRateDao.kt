@@ -19,10 +19,11 @@ interface ExchangeRateDao {
     fun getLatestExchangeRate(): Flow<ExchangeRate?>
 
     // Obtiene todos los registros dentro de un rango de fechas específico
-    @Query("SELECT * FROM exchange_rates WHERE syncDate BETWEEN :startDate AND :endDate ORDER BY syncDate DESC")
+    @Query("SELECT * FROM exchange_rates WHERE syncDate BETWEEN :startDate AND :endDate ORDER BY lastUpdateUnix ASC")
     fun getExchangeRatesByDateRange(startDate: Long, endDate: Long): Flow<List<ExchangeRate>>
 
     // Elimina todos los registros de la tabla (útil para limpiar la tabla)
     @Query("DELETE FROM exchange_rates")
     suspend fun deleteAll()
+
 }
