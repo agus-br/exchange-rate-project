@@ -4,6 +4,9 @@
 
     <!-- Permiso de Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <permission
+        android:name="com.example.exchangeRate.permission.READ_EXCHANGE_RATES"
+        android:protectionLevel="normal" />
 
     <application
         android:name=".ExchangeRateApplication"

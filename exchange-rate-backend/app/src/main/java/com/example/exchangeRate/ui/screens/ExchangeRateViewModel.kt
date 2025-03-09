@@ -12,11 +12,19 @@ import com.example.exchangeRate.data.ExchangeRateRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ExchangeRateViewModel(
     private val repository: ExchangeRateRepository
 ) : ViewModel() {
+
+
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
 
     // Estado para las tasas de conversión
     private val _conversionRates = MutableStateFlow<Map<String, Double>>(emptyMap())
@@ -52,7 +60,7 @@ class ExchangeRateViewModel(
             _isLoading.value = true
             _errorMessage.value = ""
             try {
-                repository.syncExchangeRates()
+                //repository.syncExchangeRates()
                 // Log para verificar que la carga se completó correctamente
                 Log.d("ExchangeRateViewModel", "Carga de datos completada")
             } catch (e: Exception) {
@@ -63,6 +71,34 @@ class ExchangeRateViewModel(
                 _isLoading.value = false
                 // Log para verificar que la carga terminó (éxito o error)
                 Log.d("ExchangeRateViewModel", "Carga de datos finalizada")
+            }
+        }
+    }
+
+    // Función de prueba para verificar la consulta del rango de fechas
+    fun testDateRangeQuery(startDate: Long, endDate: Long) {
+        viewModelScope.launch {
+            try {
+                val startFormatted = dateFormat.format(Date(startDate))
+                val endFormatted = dateFormat.format(Date(endDate))
+
+                Log.d("ExchangeRateViewModel", "Fechas: $startFormatted - $endFormatted")
+                // Ejecutar la consulta del rango de fechas
+                val exchangeRates = repository.getExchangeRatesByDateRange(startDate, endDate).first()
+
+                // Imprimir los resultados en el log
+                Log.d("ExchangeRateViewModel", "Resultados de la consulta del rango de fechas:")
+                exchangeRates.forEach { exchangeRate ->
+                    Log.d("ExchangeRateViewModel", "ExchangeRate: $exchangeRate")
+                }
+
+                // Verificar si no se devolvieron datos
+                if (exchangeRates.isEmpty()) {
+                    Log.d("ExchangeRateViewModel", "No se encontraron datos en el rango de fechas especificado.")
+                }
+            } catch (e: Exception) {
+                // Log en caso de error
+                Log.e("ExchangeRateViewModel", "Error en testDateRangeQuery: ${e.message}")
             }
         }
     }

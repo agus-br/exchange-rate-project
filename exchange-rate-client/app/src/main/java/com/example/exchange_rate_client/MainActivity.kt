@@ -1,20 +1,127 @@
 package com.example.exchange_rate_client
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import com.example.exchange_rate_client.ui.theme.ExchangerateclientTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             ExchangerateclientTheme {
-
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    ExchangeRateClientApp()
+                }
             }
         }
+
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExchangeRateClientApp() {
+    val context = LocalContext.current // Obtener el contexto dentro de un @Composable
+    var startDate by remember { mutableStateOf("1738368000000") }
+    var endDate by remember { mutableStateOf("1743465600000") }
+    var result by remember { mutableStateOf("") }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Cliente de Tasas de Cambio") }
+            )
+        },
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Campo de texto para la fecha de inicio
+                OutlinedTextField(
+                    value = startDate,
+                    onValueChange = { startDate = it },
+                    label = { Text("Fecha de inicio (timestamp)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Campo de texto para la fecha de fin
+                OutlinedTextField(
+                    value = endDate,
+                    onValueChange = { endDate = it },
+                    label = { Text("Fecha de fin (timestamp)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Botón para ejecutar la consulta
+                Button(
+                    onClick = {
+                        result = queryExchangeRates(
+                            context,
+                            startDate.toLong(),
+                            endDate.toLong()
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Obtener tasas de cambio")
+                }
+
+                // Área para mostrar los resultados
+                Text(
+                    text = result,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    )
+}
+
+// Función para ejecutar el ContentResolver
+@SuppressLint("Range")
+private fun queryExchangeRates(
+    context: Context,
+    startDate: Long,
+    endDate: Long
+): String {
+    val uri = Uri.parse("content://com.example.exchangeRate.providers/exchange_rates_by_date_range")
+    val cursor = context.contentResolver.query(
+        uri,
+        null,
+        null,
+        arrayOf(startDate.toString(), endDate.toString()),
+        null
+    )
+
+    return cursor?.use {
+        val results = StringBuilder()
+        while (it.moveToNext()) {
+            val rates = it.getString(it.getColumnIndex("rates"))
+            val lastUpdateUnix = it.getLong(it.getColumnIndex("last_update_unix"))
+            val nextUpdateUnix = it.getLong(it.getColumnIndex("next_update_unix"))
+            results.append("Rates: $rates, Last Update: $lastUpdateUnix, Next Update: $nextUpdateUnix\n")
+        }
+        results.toString()
+    } ?: "No se encontraron datos"
+}
+
 

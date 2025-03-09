@@ -31,6 +31,13 @@ fun MainScreen(
     Log.d("MainScreen", "Estado de carga: $isLoading")
     Log.d("MainScreen", "Mensaje de error: $errorMessage")
 
+    // Define el rango de fechas (por ejemplo, últimos 7 días)
+    val startDate = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000) // Hace 7 días
+    val endDate = System.currentTimeMillis() // Fecha actual
+
+// Llama a la función de prueba
+    viewModel.testDateRangeQuery(startDate, endDate + 1000)
+
 
     Column(
         modifier = Modifier
