@@ -34,6 +34,13 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="remove" />
+
+        <provider
+            android:name=".providers.ExchangeRateProvider"
+            android:authorities="com.example.exchangeRate.providers"
+            android:exported="true"
+            android:permission="com.example.exchangeRate.permission.READ_EXCHANGE_RATES">
+        </provider>
     </application>
 
 </manifest>
