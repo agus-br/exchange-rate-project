@@ -42,6 +42,7 @@ class ExchangeRateProvider  : ContentProvider() {
             ?: throw IllegalArgumentException("Start date is required")
         val endDate = selectionArgs?.get(1)?.toLongOrNull()
             ?: throw IllegalArgumentException("End date is required")
+        val currencyCode = uri.getQueryParameter("currencyCode") // Obtener el código de la divisa
 
         when (sUriMatcher.match(uri)) {
             1 -> scope.launch {
