@@ -66,7 +66,6 @@ class AppContainer(
             ExistingPeriodicWorkPolicy.KEEP, // La mantiene si existe
             syncRequest
         )
-
         Log.d("WorkManager", "Sincronización programada cada 15 minutos")
     }
 }

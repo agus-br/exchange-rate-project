@@ -15,9 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.exchange_rate_client.ui.components.ExchangeRateChart
 import com.example.exchange_rate_client.ui.theme.ExchangerateclientTheme
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,8 +44,10 @@ fun ExchangeRateClientApp() {
     val context = LocalContext.current // Obtener el contexto dentro de un @Composable
     var rate by remember { mutableStateOf("MXN") }
     var startDate by remember { mutableStateOf("1738368000000") }
-    var endDate by remember { mutableStateOf("1743465600000") }
+    var endDate by remember { mutableStateOf(System.currentTimeMillis().toString()) }
     var result by remember { mutableStateOf("") }
+
+    var chartData by remember { mutableStateOf<List<Pair<Long, Double>>>(emptyList()) }
 
     Scaffold(
         topBar = {
@@ -88,23 +93,29 @@ fun ExchangeRateClientApp() {
                 // Botón para ejecutar la consulta
                 Button(
                     onClick = {
-                        result = queryExchangeRates(
+                        chartData = queryExchangeRates(
                             context,
                             startDate.toLong(),
                             endDate.toLong(),
                             rate
                         )
+                        result = if (chartData.isEmpty()) {
+                            "No se encontraron datos para la divisa $rate"
+                        } else {
+                            "Datos obtenidos correctamente"
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Obtener tasas de cambio")
                 }
 
-                // Área para mostrar los resultados
-                Text(
-                    text = result,
-                    modifier = Modifier.fillMaxWidth()
+                // Mostrar la gráfica
+                ExchangeRateChart(
+                    data = chartData,
+                    context = context
                 )
+
             }
         }
     )
@@ -116,7 +127,7 @@ private fun queryExchangeRates(
     startDate: Long,
     endDate: Long,
     currencyCode: String
-): String {
+): List<Pair<Long, Double>> {
     val uri = Uri.parse("content://com.example.exchangeRate.providers/exchange_rates_by_date_range")
         .buildUpon()
         .appendQueryParameter("currencyCode", currencyCode) // Agregar el código de la divisa como parámetro
@@ -131,36 +142,14 @@ private fun queryExchangeRates(
     )
 
     return cursor?.use {
-        val results = StringBuilder()
+        val results = mutableListOf<Pair<Long, Double>>()
         while (it.moveToNext()) {
-            val currencyCode = it.getString(it.getColumnIndex("currencyCode"))
             val rate = it.getDouble(it.getColumnIndex("rate"))
             val lastUpdateUnix = it.getLong(it.getColumnIndex("last_update_unix"))
 
-            results.append("Divisa: $currencyCode, Tasa: $rate, Last Update: $lastUpdateUnix\n")
+            results.add(lastUpdateUnix to rate)
         }
-
-        if (results.isEmpty()) {
-            "No se encontraron datos para la divisa $currencyCode"
-        } else {
-            results.toString()
-        }
-    } ?: "No se encontraron datos"
+        results
+    } ?: emptyList()
 }
-
-// Función para convertir el JSON de "rates" a un Map<String, Double>
-private fun parseRatesJson(ratesJson: String?): Map<String, Double> {
-    if (ratesJson.isNullOrEmpty()) return emptyMap()
-
-    return try {
-        // Usar Gson para convertir el JSON a un Map
-        val gson = Gson()
-        val type = object : TypeToken<Map<String, Double>>() {}.type
-        gson.fromJson(ratesJson, type)
-    } catch (e: Exception) {
-        Log.e("queryExchangeRates", "Error al parsear el JSON: ${e.message}")
-        emptyMap()
-    }
-}
-
 
