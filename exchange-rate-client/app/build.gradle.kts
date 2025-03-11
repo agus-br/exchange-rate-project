@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    // Compose Charts
+    implementation (libs.compose.charts)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -34,7 +34,7 @@ class ExchangeRateProvider  : ContentProvider() {
         selectionArgs: Array<out String>?,
         sortOrder: String?
     ): Cursor? {
-        val cursor = MatrixCursor(arrayOf("rates", "last_update_unix", "next_update_unix"))
+        val cursor = MatrixCursor(arrayOf("currencyCode", "rate", "last_update_unix"))
         val deferredResult = CompletableDeferred<Cursor?>()
 
         // Obtener los parámetros de la consulta
@@ -53,15 +53,18 @@ class ExchangeRateProvider  : ContentProvider() {
                         .getExchangeRatesByDateRange(startDate, endDate)
                         .first()
 
-                    // Agregar los datos al cursor
+                    // Filtrar y agregar los datos al cursor
                     exchangeRates.forEach { exchangeRate ->
-                        cursor.addRow(
-                            arrayOf(
-                                exchangeRate.rates.toString(), // Convertir el mapa a String
-                                exchangeRate.lastUpdateUnix,
-                                exchangeRate.nextUpdateUnix
+                        val rate = exchangeRate.rates[currencyCode]
+                        if (rate != null) {
+                            cursor.addRow(
+                                arrayOf(
+                                    currencyCode, // Código de la divisa
+                                    rate, // Tasa de conversión
+                                    exchangeRate.lastUpdateUnix // Fecha de actualización
+                                )
                             )
-                        )
+                        }
                     }
                     Log.d("ExchangeRateProvider", "Data retrieved: ${cursor.count} rows")
                     deferredResult.complete(cursor)
@@ -78,6 +81,7 @@ class ExchangeRateProvider  : ContentProvider() {
             deferredResult.await()
         }
     }
+
 
     override fun getType(uri: Uri): String? {
         return when (sUriMatcher.match(uri)) {
