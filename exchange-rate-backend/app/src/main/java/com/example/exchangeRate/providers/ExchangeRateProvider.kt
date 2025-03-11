@@ -61,7 +61,7 @@ class ExchangeRateProvider  : ContentProvider() {
                                 arrayOf(
                                     currencyCode, // Código de la divisa
                                     rate, // Tasa de conversión
-                                    exchangeRate.lastUpdateUnix // Fecha de actualización
+                                    exchangeRate.syncDate // Fecha de actualización
                                 )
                             )
                         }

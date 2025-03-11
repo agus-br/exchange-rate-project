@@ -60,6 +60,7 @@ class ExchangeRateViewModel(
             _isLoading.value = true
             _errorMessage.value = ""
             try {
+                // Comentar la sincronización para que solo el worker se encargue
                 //repository.syncExchangeRates()
                 // Log para verificar que la carga se completó correctamente
                 Log.d("ExchangeRateViewModel", "Carga de datos completada")

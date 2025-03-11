@@ -18,6 +18,7 @@ class SyncWorker(
         try {
             // Sincroniza los datos con la API
             repository.syncExchangeRates()
+            Log.d("SyncWorker", "Sincronización completada")
             Result.success()
         } catch (e: Exception) {
             // Si hay un error, reintenta más tarde
