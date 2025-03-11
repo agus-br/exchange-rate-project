@@ -115,9 +115,13 @@ private fun queryExchangeRates(
     context: Context,
     startDate: Long,
     endDate: Long,
-    currencyCode: String // Nuevo parámetro para la divisa
+    currencyCode: String
 ): String {
     val uri = Uri.parse("content://com.example.exchangeRate.providers/exchange_rates_by_date_range")
+        .buildUpon()
+        .appendQueryParameter("currencyCode", currencyCode) // Agregar el código de la divisa como parámetro
+        .build()
+
     val cursor = context.contentResolver.query(
         uri,
         null,
@@ -129,24 +133,13 @@ private fun queryExchangeRates(
     return cursor?.use {
         val results = StringBuilder()
         while (it.moveToNext()) {
-            // Obtener el campo "rates" como un JSON (String)
-            val ratesJson = it.getString(it.getColumnIndex("rates"))
+            val currencyCode = it.getString(it.getColumnIndex("currencyCode"))
+            val rate = it.getDouble(it.getColumnIndex("rate"))
             val lastUpdateUnix = it.getLong(it.getColumnIndex("last_update_unix"))
-            val nextUpdateUnix = it.getLong(it.getColumnIndex("next_update_unix"))
 
-            // Convertir el JSON a un Map<String, Double>
-            val ratesMap = parseRatesJson(ratesJson)
-
-            // Obtener el valor de la divisa específica
-            val currencyRate = ratesMap[currencyCode]
-
-            // Si la divisa existe, agregar los datos al resultado
-            if (currencyRate != null) {
-                results.append("Divisa: $currencyCode, Tasa: $currencyRate, Last Update: $lastUpdateUnix, Next Update: $nextUpdateUnix\n")
-            }
+            results.append("Divisa: $currencyCode, Tasa: $rate, Last Update: $lastUpdateUnix\n")
         }
 
-        // Devolver los resultados
         if (results.isEmpty()) {
             "No se encontraron datos para la divisa $currencyCode"
         } else {
