@@ -15,7 +15,7 @@ fun ExchangeRateApp(
 
     // Cargar los datos cuando se inicia la aplicación
     LaunchedEffect(Unit) {
-        exchangeRateViewModel.loadExchangeRates()
+        //exchangeRateViewModel.loadExchangeRates()
     }
 
     // Mostrar la pantalla principal

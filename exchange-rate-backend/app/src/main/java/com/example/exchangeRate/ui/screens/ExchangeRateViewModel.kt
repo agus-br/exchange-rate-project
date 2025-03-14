@@ -11,7 +11,6 @@ import com.example.exchangeRate.ExchangeRateApplication
 import com.example.exchangeRate.data.ExchangeRateRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -61,7 +60,7 @@ class ExchangeRateViewModel(
             _errorMessage.value = ""
             try {
                 // Comentar la sincronización para que solo el worker se encargue
-                //repository.syncExchangeRates()
+                repository.syncExchangeRates()
                 // Log para verificar que la carga se completó correctamente
                 Log.d("ExchangeRateViewModel", "Carga de datos completada")
             } catch (e: Exception) {

@@ -4,6 +4,6 @@ import retrofit2.http.GET
 
 interface ExchangeRateApiService {
 
-    @GET("v6/e89744da2c7b056d1c7d4eae/latest/USD")
+    @GET("v6/e89744da2c7b056d1c7d4eae/latest/MXN")
     suspend fun getLatestExchangeRates(): ExchangeRateResponse
 }
