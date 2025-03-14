@@ -17,9 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.exchange_rate_client.data.CurrencyData
+import com.example.exchange_rate_client.ui.components.CurrencyComboBox
 import com.example.exchange_rate_client.ui.components.ExchangeRateChart
 import com.example.exchange_rate_client.ui.components.ShowDatePickerDialog
 import com.example.exchange_rate_client.ui.theme.ExchangerateclientTheme
+import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -51,7 +54,7 @@ fun ExchangeRateClientApp() {
     var startDate by remember { mutableStateOf<Long?>(null) }
     var endDate by remember { mutableStateOf<Long?>(null) }
     var result by remember { mutableStateOf("") }
-    var chartData by remember { mutableStateOf<List<Pair<Long, Double>>>(emptyList()) }
+    var chartData = remember { mutableStateListOf<Pair<Long, Double>>() }
 
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
@@ -59,6 +62,9 @@ fun ExchangeRateClientApp() {
     // Formatear las fechas para mostrarlas en los TextField
     val startDateFormatted = startDate?.let { formatDate(it) } ?: ""
     val endDateFormatted = endDate?.let { formatDate(it) } ?: ""
+
+    // Usar la lista de divisas desde CurrencyData
+    val currencies = CurrencyData.currencies
 
     Scaffold(
         topBar = {
@@ -75,13 +81,14 @@ fun ExchangeRateClientApp() {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                // Campo de texto para la fecha de inicio
-                OutlinedTextField(
-                    value = rate,
-                    onValueChange = { rate = it },
-                    label = { Text("Tasa de cambio (Código)") },
+                // Combo box para seleccionar la divisa
+                CurrencyComboBox(
+                    selectedCurrency = rate,
+                    onCurrencySelected = { rate = it },
+                    currencies = currencies,
                     modifier = Modifier.fillMaxWidth()
                 )
+
 
                 // Botón para seleccionar la fecha inicial
                 OutlinedTextField(
@@ -111,20 +118,19 @@ fun ExchangeRateClientApp() {
                     }
                 )
 
-                // Botón para ejecutar la consulta
                 Button(
                     onClick = {
                         if (startDate != null && endDate != null) {
-                            // Ajustar las horas: 00:00 para la fecha inicial y 23:59 para la fecha final
                             val startDateWithTime = setTimeToDate(startDate!!, 0, 0)
                             val endDateWithTime = setTimeToDate(endDate!!, 23, 59)
 
-                            chartData = queryExchangeRates(
-                                context,
-                                startDateWithTime,
-                                endDateWithTime,
-                                rate
-                            )
+                            chartData.clear()
+                            val newData = queryExchangeRates(context, startDateWithTime, endDateWithTime, rate)
+                            chartData.addAll(newData)
+
+                            Log.d("ExchangeRateClientApp", "New data: $newData")
+                            Log.d("ExchangeRateClientApp", "Chart data: $chartData")
+
                             result = if (chartData.isEmpty()) {
                                 "No se encontraron datos para la divisa $rate"
                             } else {
@@ -134,10 +140,10 @@ fun ExchangeRateClientApp() {
                             result = "Por favor, selecciona ambas fechas"
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Obtener tasas de cambio")
-                }
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Obtener tasas de cambio")
+            }
 
                 // Mostrar la gráfica
                 ExchangeRateChart(
@@ -179,6 +185,13 @@ private fun formatDate(timestamp: Long): String {
     return dateFormat.format(Date(timestamp))
 }
 
+// Función para formatear una fecha (timestamp a String)
+private fun formatDateWithTime(timestamp: Long): String {
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getDefault() // Usar la zona horaria local
+    return dateFormat.format(Date(timestamp))
+}
+
 // Función para ajustar la hora de una fecha
 private fun setTimeToDate(date: Long, hour: Int, minute: Int): Long {
     val calendar = Calendar.getInstance()
@@ -202,6 +215,8 @@ private fun queryExchangeRates(
         .appendQueryParameter("currencyCode", currencyCode) // Agregar el código de la divisa como parámetro
         .build()
 
+    Log.d("QueryExchangeRates", "Querying exchange rates for currency: $currencyCode, Start: ${formatDateWithTime(startDate)}, End: ${formatDateWithTime(endDate)}")
+
     val cursor = context.contentResolver.query(
         uri,
         null,
@@ -212,13 +227,19 @@ private fun queryExchangeRates(
 
     return cursor?.use {
         val results = mutableListOf<Pair<Long, Double>>()
+        Log.d("QueryExchangeRates", "Cursor count: ${it.count}")
         while (it.moveToNext()) {
             val rate = it.getDouble(it.getColumnIndex("rate"))
             val lastUpdateUnix = it.getLong(it.getColumnIndex("last_update_unix"))
 
+            Log.d("QueryExchangeRates", "Fetched row - last_update_unix: ${formatDateWithTime(lastUpdateUnix)}, rate: $rate")
             results.add(lastUpdateUnix to rate)
         }
+        Log.d("QueryExchangeRates", "Total results fetched: ${results.size}")
         results
-    } ?: emptyList()
+    } ?: run {
+        Log.w("QueryExchangeRates", "Cursor is null, returning empty list")
+        emptyList()
+    }
 }
 

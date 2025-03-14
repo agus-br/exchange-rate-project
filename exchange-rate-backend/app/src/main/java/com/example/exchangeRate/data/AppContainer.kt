@@ -57,7 +57,7 @@ class AppContainer(
             .build()
 
         val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-            15, TimeUnit.MINUTES // Ejecutar cada 15 minutos
+            1, TimeUnit.HOURS
         ).setConstraints(constraints)
             .build()
 
@@ -66,6 +66,6 @@ class AppContainer(
             ExistingPeriodicWorkPolicy.KEEP, // La mantiene si existe
             syncRequest
         )
-        Log.d("WorkManager", "Sincronización programada cada 15 minutos")
+        Log.d("WorkManager", "Sincronización programada cada hora")
     }
 }
